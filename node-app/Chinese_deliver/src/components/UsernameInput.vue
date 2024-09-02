@@ -44,6 +44,7 @@ export default {
         ElMessage.error('Please enter a username');
       }
       store.dispatch('saveUsername', username.value);
+      router.push('/home');
     };
 
     return {

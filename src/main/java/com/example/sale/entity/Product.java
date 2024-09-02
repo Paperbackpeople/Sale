@@ -16,6 +16,7 @@ public class Product {
     private BigDecimal price;
     private int saleVolume;
     private float rating;
+    private String fullDescription;
     private List<String> images;
     private List<Category> categories;
 }

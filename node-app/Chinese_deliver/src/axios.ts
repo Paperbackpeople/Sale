@@ -8,8 +8,8 @@ const instance = axios.create({
 // 请求拦截器
 instance.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
-    console.log('token', token);
-    if (token) {
+    // 排除登录请求 URL
+    if (token && config.url !== '/login') {
         config.headers.Authorization = `${token}`;
     }
     return config;

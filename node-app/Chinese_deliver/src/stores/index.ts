@@ -2,7 +2,7 @@ import { createStore } from 'vuex';
 import axios from "../axios";
 import { ElMessage } from 'element-plus';
 import router from '../router';
-
+import createPersistedState from 'vuex-persistedstate';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1秒
 
@@ -17,9 +17,28 @@ const store = createStore({
                 popular: [],
                 recommend: [],
             },
+            currentItem : null,
+            cartList: [],
+            checkedList: {
+                items: [],
+                totalPrice: 0,
+            },
+            tokenInfo: {
+                token: null,
+                tokenUsed: false,
+            }
+
         };
     },
+    plugins: [createPersistedState()],
     mutations: {
+        CLEAR_CART_LIST(state) {
+            state.cartList = [];
+            state.checkedList = [];
+        },
+        setCheckedList(state, checkedList) {
+            state.checkedList = checkedList;
+        },
         setContentNavList(state, products) {
             state.contentNavList.popular = products;
             console.log(products);
@@ -50,6 +69,35 @@ const store = createStore({
                 state.sessionTimeout = null;
             }
         },
+        setCurrentItem(state, item) {
+            state.currentItem = item;
+        },
+        addItemToCart(state, item) {
+            const existingItem = state.cartList.find(i => i.productId === item.productId);
+            if (existingItem) {
+                existingItem.quantity = item.quantity; // 更新数量
+            } else {
+                state.cartList.push(item);
+            }
+            },
+        setTokenInfo(state, token) {
+            state.tokenInfo = {
+                token: token,
+                tokenUsed: false,
+            };
+        },
+        markTokenAsUsed(state) {
+            if (state.tokenInfo) {
+                state.tokenInfo.tokenUsed = true;
+            }
+        },
+        clearTokenInfo(state) {
+            state.tokenInfo = {
+                token: null,
+                tokenUsed: false,
+            };
+        },
+
     },
     actions: {
         async login({ commit, dispatch }, { email, code }) {
@@ -141,10 +189,20 @@ const store = createStore({
         },
         delay(_, ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
-        }
+        },
+        setCurrentItem({ commit }, item) {
+            commit('setCurrentItem', item);
+        },
+        updateCheckedList({ commit }, item) {
+            commit('setCheckedList', item);
+        },
+        clearCartList({ commit }) {
+            commit('CLEAR_CART_LIST');
+        },
     },
     getters: {
         getContentNavList: (state) => state.contentNavList,
+        getCurrentItem: (state) => state.currentItem,
     },
 });
 

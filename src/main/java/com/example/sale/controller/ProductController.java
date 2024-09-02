@@ -36,6 +36,7 @@ public class ProductController {
             if (products == null) {
                 // 2. 如果 Redis 中没有数据，从数据库查询
                 products = productService.getAllProducts();
+                System.out.println("products: " + products);
                 // 3. 将查询结果存储到 Redis，并设置过期时间（例如1小时）
                 redisTemplate.opsForValue().set(REDIS_PRODUCT_KEY, products, 1, TimeUnit.HOURS);
             }

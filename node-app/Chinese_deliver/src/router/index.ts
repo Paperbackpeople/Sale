@@ -6,6 +6,7 @@ import Order from '../components/views/order/index.vue'
 import Mine from '../components/views/mine/index.vue'
 import Cart from '../components/views/cart/index.vue'
 import Detail from '../components/views/detail/index.vue'
+import CreateOrder from '../components/views/createOrder/index.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -48,6 +49,11 @@ const router = createRouter({
       name: 'Detail',
       component : Detail
 
+    },
+    {
+      path:'/createOrder',
+      name:'CreateOrder',
+      component:CreateOrder
     }
   ]
 });

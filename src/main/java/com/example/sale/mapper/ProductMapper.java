@@ -18,6 +18,10 @@ public interface ProductMapper {
             "WHERE pc.product_id = #{productId}")
     List<Category> getProductCategories(Long productId);
 
+
+    @Select("SELECT full_description FROM product_details WHERE product_id = #{productId}")
+    String getProductFullDescription(Long productId);
+
     @Select("SELECT DISTINCT p.product_id, p.name, p.short_description, p.price, p.sale_volume, p.rating " +
             "FROM products p")
     @Results({
@@ -27,6 +31,9 @@ public interface ProductMapper {
             @Result(property = "price", column = "price"),
             @Result(property = "saleVolume", column = "sale_volume"),
             @Result(property = "rating", column = "rating"),
+            @Result(property = "fullDescription", column = "product_id",
+                    javaType = String.class,
+                    one = @One(select = "getProductFullDescription", fetchType = FetchType.LAZY)),
             @Result(property = "images", column = "product_id",
                     javaType = List.class,
                     many = @Many(select = "getProductImages", fetchType = FetchType.LAZY)),

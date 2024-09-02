@@ -1,13 +1,15 @@
 <script>
 import { useRouter } from 'vue-router';
-
+import { useStore } from 'vuex';
 export default {
   props: ['itemContent'],
   name: 'NavListItem',
   setup(props) {  // Accept 'props' as a parameter
     const router = useRouter();
+    const store = useStore();
 
     const goDetail = () => {
+      store.dispatch('setCurrentItem', props.itemContent);
       router.push('/detail');
     };
 

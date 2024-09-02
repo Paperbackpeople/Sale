@@ -12,12 +12,12 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost',
+        target: 'http://nginx:80',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, '')
       },
         '/images': {
-            target: 'http://localhost',
+            target: 'http://nginx:80',
             changeOrigin: true,
         }
     }

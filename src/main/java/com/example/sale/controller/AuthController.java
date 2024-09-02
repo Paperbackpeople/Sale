@@ -70,7 +70,6 @@ public class AuthController {
                 System.out.println(username);
 
                 String token = JwtUtil.generateToken(email);
-                System.out.println(token);
                 if (username == null) {
                     // Redirect to username registration page
                     return ResponseEntity.ok()

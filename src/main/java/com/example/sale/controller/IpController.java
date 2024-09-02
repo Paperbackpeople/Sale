@@ -18,8 +18,8 @@ public class IpController {
     public ResponseEntity<Map<String, Object>> getLocation(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
-//            String ip = IpUtil.getIpAddr(request);
-            String ip = "14.100.99.237";
+            String ip = IpUtil.getIpAddr(request);
+            System.out.println("IpController.getLocation: ip = " + ip);
             String cityInfo = IpUtil.getIpPossession(ip);
             response.put("status", "success");
             response.put("location", cityInfo);

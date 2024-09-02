@@ -124,6 +124,7 @@ export default {
             email: loginForm.value.email,
             code: loginForm.value.code
           });
+          await store.dispatch('clearCartList');
         } catch (error) {
           ElMessage.error('Login failed');
         } finally {
@@ -176,8 +177,8 @@ export default {
 
 .login-card {
   width: 100%;
-  max-width: 400px;
-  padding: 20px;
+  max-width: 360px;
+  padding: 30px 20px;
   background: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
