@@ -11,7 +11,7 @@ const fetchLocation = async () => {
   try {
     const response = await axios.get('/api/location')
     if (response.data && response.data.location) {
-      location.value = response.data.location; // 将返回的位置信息赋值给 location
+      location.value = response.data.location;
     } else {
       console.error('Location data not found');
     }
@@ -22,6 +22,7 @@ const fetchLocation = async () => {
 onMounted(() => {
   fetchLocation();
   store.dispatch('fetchProducts');
+  store.dispatch('fetchMovies');
 });
 const data = reactive({
   big_sort: [
@@ -97,25 +98,30 @@ const data = reactive({
                 {{ item.name }}
               </div>
             </div>
-          <div class="small-sort">
-            <div v-for="(item, index) in data.small_sort" :key="index">
-              <svg class="icon" aria-hidden="true">
-                <use :xlink:href="`#${item.icon}`"></use>
-              </svg>
-              {{ item.name }}
+            <div class="small-sort">
+              <div v-for="(item, index) in data.small_sort" :key="index">
+                <svg class="icon" aria-hidden="true">
+                  <use :xlink:href="`#${item.icon}`"></use>
+                </svg>
+                {{ item.name }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
         <van-tabs v-model:active="active">
           <!-- Popular 标签 -->
           <van-tab title="Popular">
-            <nav-list :navList="store.getters.getContentNavList.popular" />
+            <nav-list :navList="store.getters.getContentNavList.popular" type="popular" />
           </van-tab>
 
           <!-- Recommended 标签 -->
           <van-tab title="Recommended">
-            <nav-list :navList="store.getters.getContentNavList.recommend" />
+            <nav-list :navList="store.getters.getContentNavList.recommend" type="recommend" />
+          </van-tab>
+
+          <!-- Movies 标签 -->
+          <van-tab title="Movies">
+            <nav-list :navList="store.getters.getContentNavList.movies" type="movie" />
           </van-tab>
         </van-tabs>
       </div>
@@ -129,93 +135,93 @@ const data = reactive({
   flex-flow: column;
   height: 100%;
   font-size: 12px;
-   .content {
+  .content {
     flex: 1;
     overflow-y: auto;
-     .header{
-       background-image: linear-gradient(#ffc400,#fff);
-       display: flex;
-       justify-content: space-between;
-        align-items: center;
-        padding: 20px 20px 40px 20px;
-       .text{
-         font-size: 20px;
-         font-weight: 600;
-       }
-       .location{
-         font-size: 14px;
-         span{
-           margin: 0 5px;
-         }
-       }
-     }
-     .main{
-        margin-top: -30px;
-       .main-bg{
-         background-image: linear-gradient(#fff,#f5f5f5);
-         padding: 10px 20px 0px 20px;
-         border-radius: 30px 30px 0 0;
-         .search{
-           position: relative;
-           input{
-             width: 100%;
-             height: 30px;
-             border-radius: 20px;
-             border: 1px solid #ffc400;
-           }
-           .search-text{
-             position: absolute;
-             right: -6px;
-             top: 1px;
-             background-color: #ffc400;
-             border-radius: 16px;
-             width: 50px;
-             height: 32px;
-             line-height: 32px;
-             font-size: 14px;
-             text-align: center;
-           }
-         }
-         .sort{
-           padding: 20px 0;
-           .big-sort{
-             display: flex;
-             div{
-               flex: 1;
-               display: flex;
-               justify-content: center;
-               flex-flow: column;
-               align-items: center;
-               .icon{
-                 width: 50px !important;
-                 height: 50px !important;
-                 margin-bottom: 5px;
-                 transform: scale(1);
-               }
-             }
-           }
-           .small-sort{
-             display: flex;
-             flex-wrap: wrap;
-             margin-top: 20px;
-             div {
-               display: flex;
-               justify-content: center;
-               flex-flow: column;
-               align-items: center;
-               width: 20%;
-               .icon{
-                 width: 30px !important;
-                 height: 30px !important;
-                 margin : 10px;
-               }
-             }
-           }
-         }
+    .header{
+      background-image: linear-gradient(#ffc400,#fff);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 20px 40px 20px;
+      .text{
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .location{
+        font-size: 14px;
+        span{
+          margin: 0 5px;
+        }
+      }
+    }
+    .main{
+      margin-top: -30px;
+      .main-bg{
+        background-image: linear-gradient(#fff,#f5f5f5);
+        padding: 10px 20px 0px 20px;
+        border-radius: 30px 30px 0 0;
+        .search{
+          position: relative;
+          input{
+            width: 100%;
+            height: 30px;
+            border-radius: 20px;
+            border: 1px solid #ffc400;
+          }
+          .search-text{
+            position: absolute;
+            right: -6px;
+            top: 1px;
+            background-color: #ffc400;
+            border-radius: 16px;
+            width: 50px;
+            height: 32px;
+            line-height: 32px;
+            font-size: 14px;
+            text-align: center;
+          }
+        }
+        .sort{
+          padding: 20px 0;
+          .big-sort{
+            display: flex;
+            div{
+              flex: 1;
+              display: flex;
+              justify-content: center;
+              flex-flow: column;
+              align-items: center;
+              .icon{
+                width: 50px !important;
+                height: 50px !important;
+                margin-bottom: 5px;
+                transform: scale(1);
+              }
+            }
+          }
+          .small-sort{
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            div {
+              display: flex;
+              justify-content: center;
+              flex-flow: column;
+              align-items: center;
+              width: 20%;
+              .icon{
+                width: 30px !important;
+                height: 30px !important;
+                margin : 10px;
+              }
+            }
+          }
+        }
 
+      }
+    }
   }
-}
-}
 }
 
 </style>

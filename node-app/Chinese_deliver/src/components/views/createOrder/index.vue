@@ -3,6 +3,7 @@ import {defineComponent, computed, ref} from 'vue';
 import { useStore } from 'vuex';
 import Header from '@/components/Header.vue';
 import axios from 'axios';
+import router from "@/router";
 export default defineComponent({
   components: { Header },
   setup() {
@@ -13,16 +14,18 @@ export default defineComponent({
     const checkedList = computed(() => store.state.checkedList);
     const items = computed(() => checkedList.value.items);
     const totalAmount = computed(() => checkedList.value.totalPrice / 100);
+    const isTokenExpired = computed(() => store.getters.isTokenExpired);
 
     const onEdit = () => {
-      // 处理编辑联系人信息逻辑
+      // 跳转到编辑地址页面
+      router.push('/address');
     };
     // 在创建订单时的使用示例
     const onPay = async () => {
       let tokenInfo = store.state.tokenInfo;
 
       // 检查 token 是否已被使用
-      if (!tokenInfo.token || tokenInfo.tokenUsed) {
+      if (!tokenInfo.token || tokenInfo.tokenUsed || !isTokenExpired.value) {
         try {
           isSubmitting.value = true;
           const tokenResponse = await axios.get('/api/generateToken');
@@ -36,12 +39,16 @@ export default defineComponent({
           return;
         }
       }
-
+      const orderItems = items.value.map(item => ({
+        productId: item.productId, // 从商品数据中获取 productId
+        quantity: item.quantity,
+        price: item.price,
+      }));
       try {
         const response = await axios.post('/api/createOrder', {
           userId: store.state.user,
           totalAmount: totalAmount.value,
-          orderItems: items.value,
+          orderItems: orderItems,
           location: 'Your delivery address here',
           status: 'pending',
           token: tokenInfo.token,  // 发送请求时附带 Token
@@ -54,7 +61,7 @@ export default defineComponent({
           console.log('Order created successfully:', response.data);
           store.commit('markTokenAsUsed');  // 标记 Token 已使用
         } else {
-          isSubmitting.value = false;
+          isSubmitting.value = true;
           console.error('Order creation failed');
         }
       } catch (error) {
@@ -86,7 +93,7 @@ export default defineComponent({
             :num="item.quantity"
             :price="item.price"
             :title="item.name"
-            :thumb="item.images[0]"
+            :thumb="item.image || (item.images && item.images[0]) || '/images/default-image.jpg'"
         />
       </div>
     </div>

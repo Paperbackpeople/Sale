@@ -6,11 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
-
-/**
- * redis配置
- * @author 追到乌云的尽头找太阳（Jacob）
- **/
 @Configuration
 public class RedisConfig {
     @Bean

@@ -4,11 +4,28 @@ import com.example.sale.entity.Category;
 import com.example.sale.entity.Product;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.mapping.FetchType;
+import com.example.sale.entity.ProductImage;
+
 
 import java.util.List;
 
 @Mapper
 public interface ProductMapper {
+    // 检查产品是否存在
+    @Select("SELECT * FROM products WHERE name = #{name}")
+    Product getProductByName(String name);
+
+    // 插入新产品
+    @Insert("INSERT INTO products (name, short_description, price, sale_volume, rating) " +
+            "VALUES (#{name}, #{shortDescription}, #{price}, #{saleVolume}, #{rating})")
+    @Options(useGeneratedKeys = true, keyProperty = "productId", keyColumn = "product_id")
+    void insertProduct(Product product);
+
+    // 插入产品图片
+    @Insert("INSERT INTO product_images (image_url, product_id) VALUES (#{imageUrl}, #{productId})")
+    void insertProductImage(ProductImage productImage);
+
+    // 获取产品图片
     @Select("SELECT image_url FROM product_images WHERE product_id = #{productId}")
     List<String> getProductImages(Long productId);
 

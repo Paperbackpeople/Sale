@@ -4,8 +4,8 @@ import { ElMessage } from 'element-plus';
 import router from '../router';
 import createPersistedState from 'vuex-persistedstate';
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1秒
-
+const RETRY_DELAY = 1000;
+import movies from '@/stores/movies.json';
 const store = createStore({
     state() {
         return {
@@ -16,6 +16,7 @@ const store = createStore({
             contentNavList: {
                 popular: [],
                 recommend: [],
+                movies: [],
             },
             currentItem : null,
             cartList: [],
@@ -75,11 +76,12 @@ const store = createStore({
         addItemToCart(state, item) {
             const existingItem = state.cartList.find(i => i.productId === item.productId);
             if (existingItem) {
-                existingItem.quantity = item.quantity; // 更新数量
+                // 更新所有属性，确保数据完整
+                Object.assign(existingItem, item);
             } else {
                 state.cartList.push(item);
             }
-            },
+        },
         setTokenInfo(state, token) {
             state.tokenInfo = {
                 token: token,
@@ -97,6 +99,9 @@ const store = createStore({
                 tokenUsed: false,
             };
         },
+        SET_MOVIES(state, movies) {
+            state.contentNavList.movies = movies;
+        }
 
     },
     actions: {
@@ -199,6 +204,21 @@ const store = createStore({
         clearCartList({ commit }) {
             commit('CLEAR_CART_LIST');
         },
+        async fetchMovies({ commit }) {
+            try {
+                // 调用后端接口
+                const response = await axios.get('/api/movie');
+                const movies = JSON.parse(response.data);
+                console.log(movies.movieList);
+                if (movies) {
+                    // 提交数据到 Vuex
+                    commit('SET_MOVIES', movies.movieList);
+                } else {
+                }
+            } catch (error) {
+                console.error('Failed to fetch movies:', error);
+            }
+        }
     },
     getters: {
         getContentNavList: (state) => state.contentNavList,

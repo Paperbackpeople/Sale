@@ -52,5 +52,26 @@ public class UserService {
         String key = "username:" + email;
         redisTemplateString.opsForValue().set(key, username);
     }
+
+    public String getUsername(String email) {
+        String key = "username:" + email;
+
+        // Check Redis
+        String cachedUsername = redisTemplateString.opsForValue().get(key);
+        if (cachedUsername != null) {
+            return cachedUsername;
+        }
+
+        // Fallback to database
+        String username = userMapper.getUsernameByEmail(email);
+
+        // Cache the result in Redis
+        if (username != null) {
+            redisTemplateString.opsForValue().set(key, username);
+        }
+
+        return username;
+    }
+
 }
 

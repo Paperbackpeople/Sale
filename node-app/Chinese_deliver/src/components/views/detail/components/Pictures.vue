@@ -3,7 +3,7 @@
     <img
         v-for="(image, index) in images"
         :key="index"
-        :src="image"
+        :src="`/images/${image}`"
         alt=""
         class="picture-item"
     />

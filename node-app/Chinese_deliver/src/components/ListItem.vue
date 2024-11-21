@@ -2,8 +2,7 @@
   <div class="content-item">
     <div class="left">
       <van-checkbox :name="item.productId" v-if="showCheckbox" />
-      <img :src="item.images[0]" alt="" />
-      <div class="text">
+      <img :src="getItemImage()" alt="" />      <div class="text">
         <div class="title">{{ item.name }}</div>
         <van-stepper v-model="item.quantity"
                      min="0"
@@ -18,13 +17,14 @@
 
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import {defineComponent, PropType} from 'vue';
 
 export interface CartItem {
   productId: number;
   name: string;
   price: number;
-  images: string[];
+  images?: string[]; // images 属性可选
+  image?: string;    // image 属性可选
   quantity: number;
   add: boolean;
 }
@@ -43,6 +43,10 @@ export default defineComponent({
   methods: {
     handleChange(value: number) {
       this.$emit('change', value);
+    },
+    getItemImage() {
+      return this.item.image
+          || (this.item.images && this.item.images.length > 0 ? this.item.images[0] : '/images/default-image.jpg');
     },
   },
 });
