@@ -1,15 +1,22 @@
 <script lang="ts">
-import {defineComponent, computed, ref} from 'vue';
+import { defineComponent, computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import Header from '@/components/Header.vue';
 import axios from 'axios';
 import router from "@/router";
+import {ElMessage} from "element-plus";
+
 export default defineComponent({
   components: { Header },
   setup() {
     const store = useStore();
     const isSubmitting = ref(false);  // 定义按钮状态
-
+    const contact = ref({
+      tel: '',
+      name: '',
+      address: ''
+    });
+    const selectedAddressId = ref(null);
     // 获取选中商品和总金额
     const checkedList = computed(() => store.state.checkedList);
     const items = computed(() => checkedList.value.items);
@@ -17,11 +24,70 @@ export default defineComponent({
     const isTokenExpired = computed(() => store.getters.isTokenExpired);
 
     const onEdit = () => {
-      // 跳转到编辑地址页面
-      router.push('/address');
+      // 跳转到地址列表页面，并携带当前选中的地址ID
+      router.push({
+        path: '/address-list',
+        query: { selectedAddressId: selectedAddressId.value }
+      });
     };
-    // 在创建订单时的使用示例
+
+
+    onMounted(async () => {
+      const email = store.state.username;
+      const selectedAddressId = store.state.selectedAddressId;
+
+      try {
+        // 获取用户姓名
+        const userResponse = await axios.get('/api/user/username', {
+          params: { email: store.state.user },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const userName = userResponse.data || 'No username set';
+
+        // 获取所有地址
+        const addressResponse = await axios.get('/api/address/all', {
+          params: { email : store.state.user },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const addresses = addressResponse.data;
+
+        let selectedAddress;
+        if (addresses && addresses.length > 0) {
+          if (selectedAddressId) {
+            // 根据选中的地址ID获取地址
+            selectedAddress = addresses.find(addr => addr.addressId === parseInt(selectedAddressId));
+          }
+          if (!selectedAddress) {
+            // 如果没有选中的地址，使用默认地址或第一个地址
+            selectedAddress = addresses.find(addr => addr.isPrimary) || addresses[0];
+          }
+
+          if (selectedAddress) {
+            contact.value = {
+              name: userName, // 姓名保持不变
+              tel: selectedAddress.tel,
+              address: `${selectedAddress.addressLine}, ${selectedAddress.city}, ${selectedAddress.state}, ${selectedAddress.province}`
+            };
+          }
+        }
+      } catch (error) {
+        console.error('获取用户或地址信息时出错:', error);
+      }
+    });
     const onPay = async () => {
+      // 验证 name 和 tel 是否为空
+      if (!contact.value.name || !contact.value.tel) {
+        ElMessage.error('Please add your address before paying.');
+        onEdit(); // 跳转到地址编辑页面
+        return;
+      }
+
       let tokenInfo = store.state.tokenInfo;
 
       // 检查 token 是否已被使用
@@ -39,41 +105,54 @@ export default defineComponent({
           return;
         }
       }
+
       const orderItems = items.value.map(item => ({
         productId: item.productId, // 从商品数据中获取 productId
         quantity: item.quantity,
         price: item.price,
       }));
+
       try {
-        const response = await axios.post('/api/createOrder', {
-          userId: store.state.user,
-          totalAmount: totalAmount.value,
-          orderItems: orderItems,
-          location: 'Your delivery address here',
-          status: 'pending',
-          token: tokenInfo.token,  // 发送请求时附带 Token
-        }, {
-          headers: {
-            'Content-Type': 'application/json',
-          }});
+        const response = await axios.post(
+            '/api/createOrder',
+            {
+              userId: store.state.user,
+              totalAmount: totalAmount.value,
+              orderItems: orderItems,
+              location: contact.value.address,
+              status: 'pending',
+              token: tokenInfo.token, // 发送请求时附带 Token
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            }
+        );
 
         if (response.status === 201) {
           console.log('Order created successfully:', response.data);
-          store.commit('markTokenAsUsed');  // 标记 Token 已使用
+
+          // 标记 Token 已使用
+          store.commit('markTokenAsUsed');
+
+          // 清空购物车
+          store.commit('clearCart');
+
+          // 跳转到订单页面
+          router.push('/order');
         } else {
-          isSubmitting.value = true;
           console.error('Order creation failed');
         }
       } catch (error) {
         console.error('An error occurred while creating the order:', error);
+      } finally {
+        isSubmitting.value = false; // 恢复按钮状态
       }
     };
 
     return {
-      contact: {
-        tel: '', // 获取并设置联系人电话
-        name: '' // 获取并设置联系人姓名
-      },
+      contact,
       items,
       totalAmount,
       onEdit,
@@ -86,7 +165,7 @@ export default defineComponent({
 <template>
   <div class="create-order">
     <Header title="Create Order" />
-    <van-contact-card type="edit" :tel="contact.tel" :name="contact.name" @click="onEdit" />
+    <van-contact-card type="edit" :tel="contact.tel" :name="contact.name" :address="contact.address" @click="onEdit" />
     <div class="content">
       <div v-for="(item, index) in items" :key="index">
         <van-card

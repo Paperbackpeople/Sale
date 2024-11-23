@@ -29,7 +29,10 @@ public class OrderService {
         amqpTemplate.convertAndSend("orderQueue", order);
     }
     public List<Order> getOrdersByEmail(String email) {
-        int userId = userMapper.getUserIdByEmail(email);
-        return orderMapper.getOrdersByUserId(userId);
+        return orderMapper.getOrdersByUserId(email);
     }
+    public Order getOrderById(Long orderId) {
+        return orderMapper.getOrderById(orderId);
+    }
+
 }

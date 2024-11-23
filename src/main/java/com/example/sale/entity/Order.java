@@ -1,6 +1,5 @@
 package com.example.sale.entity;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -12,11 +11,14 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Order {
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long orderId;
     private String userId;
     private BigDecimal totalAmount;

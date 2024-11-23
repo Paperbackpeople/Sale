@@ -27,12 +27,18 @@ const store = createStore({
             tokenInfo: {
                 token: null,
                 tokenUsed: false,
-            }
+            },
+            selectedAddressId: null,
+
 
         };
     },
     plugins: [createPersistedState()],
     mutations: {
+        clearCart(state) {
+            state.cartList = [];
+        },
+
         CLEAR_CART_LIST(state) {
             state.cartList = [];
             state.checkedList = [];
@@ -101,7 +107,10 @@ const store = createStore({
         },
         SET_MOVIES(state, movies) {
             state.contentNavList.movies = movies;
-        }
+        },
+        setSelectedAddressId(state, addressId) {
+            state.selectedAddressId = addressId;
+        },
 
     },
     actions: {
@@ -155,7 +164,7 @@ const store = createStore({
                 }
             }).then(response => {
                 if (response.data === 'Registration successful') {
-                    router.push('/login');
+                    router.push('/home');
                 } else {
                     console.error('Registration failed', response.data);
                     ElMessage.error('Registration failed');

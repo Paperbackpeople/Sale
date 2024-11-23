@@ -9,6 +9,7 @@ import Detail from '../components/views/detail/index.vue';
 import CreateOrder from '../components/views/createOrder/index.vue';
 import AddressList from '../components/views/mine/components/AddressList.vue';
 import AddressEdit from '../components/views/mine/components/AddressEdit.vue';
+import OrderDetail from "@/components/views/order/components/OrderDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -66,6 +67,11 @@ const router = createRouter({
       path: '/address-list',
       name: 'AddressList',
       component: AddressList,
+    },
+    {
+      path: '/order-detail',
+      name: 'OrderDetail',
+      component: OrderDetail
     },
   ],
 });

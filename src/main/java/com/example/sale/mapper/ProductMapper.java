@@ -40,7 +40,8 @@ public interface ProductMapper {
     String getProductFullDescription(Long productId);
 
     @Select("SELECT DISTINCT p.product_id, p.name, p.short_description, p.price, p.sale_volume, p.rating " +
-            "FROM products p")
+            "FROM products p " +
+            "WHERE LOWER(p.short_description) NOT LIKE '%movie%'")
     @Results({
             @Result(property = "productId", column = "product_id"),
             @Result(property = "name", column = "name"),

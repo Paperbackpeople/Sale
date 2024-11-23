@@ -95,6 +95,12 @@ const addToCart = async () => {
 const toCart = () => {
   router.push("/cart");
 };
+const buyNow = async () => {
+  // 调用 addToCart 添加到购物车
+  await addToCart();
+  // 跳转到购物车页面
+  toCart();
+};
 </script>
 
 <template>
@@ -140,7 +146,7 @@ const toCart = () => {
       />
       <van-stepper v-model="quantity" min="0" />
       <van-action-bar-button type="warning" text="Add to cart" @click="addToCart" />
-      <van-action-bar-button type="danger" text="Buy now" />
+      <van-action-bar-button type="danger" text="Buy now" @click="buyNow" />
     </van-action-bar>
   </div>
 </template>
