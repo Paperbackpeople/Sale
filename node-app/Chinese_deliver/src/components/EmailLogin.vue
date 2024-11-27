@@ -8,7 +8,7 @@
             <el-input v-model="loginForm.email" placeholder="Input Email Address"></el-input>
           </el-form-item>
           <el-form-item label="Code" prop="code">
-            <el-row gutter="10" type="flex" justify="start" align="middle">
+            <el-row :gutter="10" type="flex" justify="start" align="middle">              
               <el-col :span="19">
                 <el-input v-model="loginForm.code" placeholder="Input the validation code" style="width: 100%;"></el-input>
               </el-col>
@@ -29,27 +29,29 @@
 </template>
 
 <script>
-import { ref, onBeforeUnmount } from 'vue';
+import { ref, onBeforeUnmount, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import axios from '../axios';
 import { useRouter } from 'vue-router';
-import {useStore} from 'vuex';
+import { useStore } from 'vuex';
 
 export default {
   name: 'EmailLogin',
   setup() {
     const router = useRouter();
     const store = useStore();
+
+    // 初始化表单数据
     const loginForm = ref({
-      email: '',
+      email: localStorage.getItem('email') || '', // 从 localStorage 获取 email 值
       code: ''
     });
 
     const rules = {
       email: [
-        {required: true, message: 'Please enter your email'}
+        { required: true, message: 'Please enter your email' }
       ],
-      code: [{required: true, message: 'Please enter the code'}]
+      code: [{ required: true, message: 'Please enter the code' }]
     };
 
     const timer = ref(0);
@@ -57,6 +59,7 @@ export default {
     const isSubmitButtonDisabled = ref(false);
     const timerInterval = ref(null);
 
+    // 校验 email
     const validateEmail = () => {
       const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
       if (!emailRegex.test(loginForm.value.email)) {
@@ -66,6 +69,7 @@ export default {
       return true;
     };
 
+    // 校验 code
     const validateCode = () => {
       const codeRegex = /^\d{6}$/;
       if (!codeRegex.test(loginForm.value.code)) {
@@ -119,6 +123,9 @@ export default {
       if (validateEmail() && validateCode() && !isSubmitButtonDisabled.value) {
         isSubmitButtonDisabled.value = true;
         try {
+          // 保存 email 到 localStorage
+          localStorage.setItem('email', loginForm.value.email);
+
           // 调用 Vuex 的 login action
           await store.dispatch('login', {
             email: loginForm.value.email,
@@ -134,8 +141,9 @@ export default {
         ElMessage.error('Please complete the form');
       }
     };
+
+    // 页面销毁时清除计时器
     onBeforeUnmount(() => {
-      // Clear the interval if the component is destroyed
       if (timerInterval.value) {
         clearInterval(timerInterval.value);
       }
@@ -146,6 +154,7 @@ export default {
       rules,
       timer,
       isButtonDisabled,
+      isSubmitButtonDisabled,
       handleSendCode,
       submitForm
     };

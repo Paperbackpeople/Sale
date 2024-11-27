@@ -1,6 +1,6 @@
 <template>
   <div class="order-list">
-    <Header title="My Orders" />
+    <Header title="My Orders" :disableBack="true" />
     <div class="content">
       <div
           v-for="order in orders"
@@ -62,24 +62,35 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 1. 设置最外层容器为 Flex 布局，垂直方向 */
+/* 1. 设置最外层容器为 Flex 布局，高度为 100vh */
 .order-list {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* 视口高度 */
+  height: 100%;
   background-color: #f9f9f9;
-  font-size: 12px; /* 全局字体大小 */
+  font-size: 12px;
   box-sizing: border-box;
 }
 
-/* 2. 内容区域可伸缩，填充剩余空间 */
-.content {
-  padding: 20px; /* 添加内边距 */
-  flex: 1;
-  margin-bottom: 20px; /* 与 Footer 之间的间距 */
+/* 2. Header 样式调整（确保高度固定） */
+header {
+  flex-shrink: 0;
+  height: 60px; /* 假设 Header 高度为 60px，根据实际情况调整 */
 }
 
-/* 3. 订单卡片样式 */
+/* 3. 内容区域 */
+.content {
+  flex: 1; /* 填充剩余空间 */
+  overflow-y: auto; /* 内容超出时滚动 */
+  padding: 20px;
+}
+
+/* 调整内容区域高度，减去 Header 和 Footer 的高度 */
+.content {
+  height: calc(100vh - 60px - 50px); /* 100vh - Header高度 - Footer高度 */
+}
+
+/* 4. 订单卡片样式（保持不变） */
 .order-card {
   background: #fff;
   border-radius: 8px;
@@ -95,7 +106,7 @@ onMounted(() => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* 4. 订单头部布局 */
+/* 5. 订单头部布局（保持不变） */
 .order-header {
   display: flex;
   justify-content: space-between;
@@ -103,22 +114,22 @@ onMounted(() => {
   margin-bottom: 10px;
 }
 
-/* 5. 订单ID样式 */
+/* 6. 订单ID样式（保持不变） */
 .order-id {
   font-weight: bold;
-  font-size: 12px; /* 调整为12px */
+  font-size: 12px;
 }
 
-/* 6. 订单状态样式 */
+/* 7. 订单状态样式（保持不变） */
 .order-status {
   padding: 2px 6px;
   border-radius: 8px;
-  font-size: 10px; /* 更小的字体 */
+  font-size: 10px;
   font-weight: bold;
   text-transform: capitalize;
 }
 
-/* 状态颜色 */
+/* 状态颜色（保持不变） */
 .status-pending {
   background-color: #ffe5b4;
   color: #996600;
@@ -134,30 +145,27 @@ onMounted(() => {
   color: #721c24;
 }
 
-/* 7. 订单主体布局 */
+/* 8. 订单主体布局（保持不变） */
 .order-body {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* 8. 订单金额样式 */
+/* 9. 订单金额样式（保持不变） */
 .order-amount {
-  font-size: 12px; /* 调整为12px */
+  font-size: 12px;
   color: #333;
 }
 
-/* 9. 订单日期样式 */
+/* 10. 订单日期样式（保持不变） */
 .order-date {
-  font-size: 12px; /* 调整为12px */
+  font-size: 12px;
   color: #888;
 }
 
-/* 10. Footer 样式调整 */
+/* 11. Footer 固定在底部 */
 footer {
-  text-align: center;
-  background-color: #fff;
-  border-top: 1px solid #e9e9e9;
-  padding: 0; /* 去除内边距 */
+  position: fixed;
 }
 </style>

@@ -2,8 +2,8 @@ import axios from 'axios';
 import router from './router';
 
 const instance = axios.create({
-    baseURL: '/'
-
+      baseURL: 'http://www.wangzhaoyu.com',
+      withCredentials: true
 });
 
 // 请求拦截器

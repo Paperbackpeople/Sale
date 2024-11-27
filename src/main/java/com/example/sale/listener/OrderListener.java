@@ -20,8 +20,9 @@ public class OrderListener {
         this.orderItemMapper = orderItemMapper;
     }
 
-    @RabbitListener(queues = RabbitMQConfig.ORDER_QUEUE)
-    public void handleOrder(Order order) {
+@RabbitListener(queues = RabbitMQConfig.ORDER_QUEUE)
+public void handleOrder(Order order) {
+    try {
         // 处理订单的异步逻辑
         System.out.println("Processing order: " + order);
 
@@ -30,10 +31,13 @@ public class OrderListener {
 
         // 插入订单项
         for (OrderItem item : order.getOrderItems()) {
-            item.setOrderId(order.getOrderId()); // 设置 OrderItem 的 orderId
+            item.setOrderId(order.getOrderId());
             orderItemMapper.insertOrderItem(item);
         }
-
-        // 这里可以添加其他处理逻辑，例如发送确认邮件等
+    } catch (Exception e) {
+        // 捕获并记录异常
+        System.err.println("Failed to process order: " + order.getOrderId());
+        e.printStackTrace();
     }
+}
 }
